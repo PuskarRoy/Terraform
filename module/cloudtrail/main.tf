@@ -16,10 +16,8 @@ resource "aws_cloudtrail" "this" {
   s3_bucket_name                = aws_s3_bucket.this.id
   include_global_service_events = true
   is_multi_region_trail         = true
-  kms_key_id                    = var.kms_key_arn
   enable_log_file_validation    = true
   tags                          = var.tags
-
 
 }
 

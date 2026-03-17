@@ -1,8 +1,3 @@
-variable "kms_key_arn" {
-  type        = string
-  description = "KMS Key ARN"
-}
-
 variable "tags" {
   description = "Cloudtrail Tags"
   type        = map(string)
@@ -17,4 +12,5 @@ variable "project_name" {
 variable "cloudtrail-bucket-retention-days" {
   description = "Number of days to keep Cloudtrail log"
   type        = number
+  default     = 365
 }

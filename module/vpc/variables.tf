@@ -27,6 +27,7 @@ variable "enable_ipv6" {
 variable "flow-log-bucket-retention-days" {
   description = "Numbers of days to keep flow log"
   type        = number
+  default     = 15
 }
 
 variable "tags" {

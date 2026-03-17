@@ -1,13 +1,16 @@
 module "data-s3-bucket-1" {
   source            = "./module/s3"
   bucket_versioning = false
-  bucket_name       = "data-bucket"
+  bucket_name       = "data-bucket-2"
   encryption-type   = "aws:kms"
   kms_key_id        = module.my-kms.id
 }
 
 module "data-s3-bucket-2" {
-  source            = ""
+  source = "./module/s3"
+  bucket_versioning = true
+  bucket_name = "data-bucket-2"
+  # s3-policy-path = "./assets/policies"
 
 }
 
@@ -21,13 +24,11 @@ module "key_pair" {
 module "my-kms" {
   source          = "./module/kms"
   project_name    = var.project_name
-  kms-policy-path = "./assets/kms-key-policy.json"
+  kms-policy-path = "./assets/policies/kms-key-policy.json"
 }
 
 module "cloudtrail" {
   source       = "./module/cloudtrail"
   project_name = "my-project"
-  kms_key_arn  = module.my-kms.arn
-
 }
 
