@@ -1,9 +1,14 @@
-module "data-s3-bucket" {
+module "data-s3-bucket-1" {
   source            = "./module/s3"
   bucket_versioning = false
   bucket_name       = "data-bucket"
   encryption-type   = "aws:kms"
   kms_key_id        = module.my-kms.id
+}
+
+module "data-s3-bucket-2" {
+  source            = ""
+
 }
 
 module "key_pair" {

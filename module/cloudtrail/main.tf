@@ -80,3 +80,17 @@ resource "aws_s3_bucket_policy" "this" {
   bucket = aws_s3_bucket.this.id
   policy = data.aws_iam_policy_document.this.json
 }
+
+resource "aws_s3_bucket_lifecycle_configuration" "this" {
+  bucket = aws_s3_bucket.this.id
+
+  rule {
+    id = "Retention-${var.cloudtrail-bucket-retention-days}-days"
+    filter {}
+
+    expiration {
+      days = var.cloudtrail-bucket-retention-days
+    }
+    status = "Enabled"
+  }
+}
