@@ -21,16 +21,11 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "this" {
 
   rule {
     apply_server_side_encryption_by_default {
-      kms_master_key_id = var.kms_key_id
+      kms_master_key_id = var.encryption-type == "aws:kms" ? var.kms_key_id : null
       sse_algorithm     = var.encryption-type
     }
     bucket_key_enabled = true
   }
-}
-
-resource "aws_s3_bucket_policy" "this" {
-  bucket = aws_s3_bucket.this.id
-  policy = file(var.s3-policy-path)
 }
 
 

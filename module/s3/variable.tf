@@ -30,9 +30,3 @@ variable "kms_key_id" {
   description = "KMS Key ID"
   default     = "aws/s3"
 }
-
-variable "s3-policy-path" {
-  type        = string
-  description = "File Path of S3 Policy"
-  default     = ""
-}

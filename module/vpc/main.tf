@@ -1,3 +1,5 @@
+data "aws_region" "current" {}
+
 data "aws_availability_zones" "this" {
   filter {
     name   = "opt-in-status"
@@ -194,10 +196,12 @@ resource "aws_route_table_association" "pvt-association" {
 resource "aws_vpc_endpoint" "s3" {
   vpc_id            = aws_vpc.main-vpc.id
   vpc_endpoint_type = "Gateway"
-  service_name      = "com.amazonaws.${var.aws_region}.s3"
+  service_name      = "com.amazonaws.${data.aws_region.current.region}.s3"
   route_table_ids   = [aws_route_table.private_rt.id, aws_route_table.public_rt.id]
   ip_address_type   = var.enable_ipv6 ? "dualstack" : "ipv4"
   tags = {
     Name = "${replace(lower(var.project_name), " ", "-")}-VPC-S3-GateWay-Endpoint"
   }
 }
+
+
