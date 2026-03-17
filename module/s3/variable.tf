@@ -10,7 +10,7 @@ variable "tags" {
 }
 
 variable "bucket_versioning" {
-  description = "Bucket Versioning Enable"
+  description = "Enable Bucket Versioning"
   type        = bool
 }
 

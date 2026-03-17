@@ -1,5 +1,3 @@
-
-
 module "data-s3-bucket" {
   source            = "./module/s3"
   bucket_versioning = false
