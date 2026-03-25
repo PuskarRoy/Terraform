@@ -110,7 +110,7 @@ resource "aws_internet_gateway" "igw" {
 }
 
 resource "aws_nat_gateway" "nat" {
-  count         = var.enable_nat ? 1 : 0
+  count         = var.enable_nat && var.nat_type == "gateway" ? 1 : 0
   allocation_id = aws_eip.eip[0].id
   subnet_id     = aws_subnet.public_subnets[0].id
 
@@ -121,6 +121,133 @@ resource "aws_nat_gateway" "nat" {
   depends_on = [aws_internet_gateway.igw]
 }
 
+data "aws_ami" "this" {
+  count         = var.enable_nat && var.nat_type == "instance" ? 1 : 0
+  most_recent = true
+  owners      = ["amazon"]
+  filter {
+    name   = "architecture"
+    values = ["x86_64"]
+  }
+
+  filter {
+    name   = "owner-alias"
+    values = ["amazon"]
+  }
+
+  filter {
+    name   = "owner-alias"
+    values = ["amazon"]
+  }
+
+  filter {
+    name   = "image-type"
+    values = ["machine"]
+  }
+
+  filter {
+    name   = "description"
+    values = ["Amazon Linux*"]
+  }
+  filter {
+    name   = "root-device-type"
+    values = ["ebs"]
+  }
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+
+  }
+}
+resource "aws_instance" "name" {
+ami = data.aws_ami.this.id
+instance_type = var.nat_instance_type
+associate_public_ip_address = false
+disable_api_termination = true
+enable_primary_ipv6 = var.enable_ipv6
+key_name = var.nat_instance_key_pair
+source_dest_check = false
+user_data = ""
+subnet_id = aws_subnet.public_subnets[1].id
+vpc_security_group_ids = [aws_security_group.this.id]
+root_block_device{
+  delete_on_termination = false
+  encrypted = true
+  kms_key_id = var.nat_ebs_kms
+  volume_type = "gp3"
+  volume_size = var.nat_ebs_volumn
+}
+tags = {
+    Name = "${replace(lower(var.project_name), " ", "-")}-NAT"
+  }
+}
+
+resource "aws_security_group" "this" {
+  name = "${replace(lower(var.project_name), " ", "-")}-NAT-SG"
+
+  lifecycle {
+    create_before_destroy = true
+  }
+
+  ingress{
+    from_port = 443
+    to_port = 443
+    protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+ dynamic "ingress" {
+   for_each = var.enable_ipv6 ? [1] : [0]
+
+   content {
+     from_port = 443
+    to_port = 443
+    protocol = "tcp"
+    ipv6_cidr_blocks = ["::/0"]
+   }
+ }
+
+ ingress{
+    from_port = 2223
+    to_port = 2223
+    protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+ dynamic "ingress" {
+   for_each = var.enable_ipv6 ? [1] : [0]
+
+   content {
+     from_port = 2223
+    to_port = 2223
+    protocol = "tcp"
+    ipv6_cidr_blocks = ["::/0"]
+   }
+ }
+
+ ingress{
+    from_port = 1557
+    to_port = 1557
+    protocol = "udp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+ dynamic "ingress" {
+   for_each = var.enable_ipv6 ? [1] : [0]
+
+   content {
+     from_port = 1557
+    to_port = 1557
+    protocol = "udp"
+    ipv6_cidr_blocks = ["::/0"]
+   }
+ }
+  
+
+}
+
+
+
 resource "aws_egress_only_internet_gateway" "eigw" {
   count  = var.enable_nat && var.enable_ipv6 ? 1 : 0
   vpc_id = aws_vpc.main-vpc.id
@@ -128,6 +255,8 @@ resource "aws_egress_only_internet_gateway" "eigw" {
     Name = "${replace(lower(var.project_name), " ", "-")}-EIGW"
   }
 }
+
+
 
 
 resource "aws_route_table" "public_rt" {

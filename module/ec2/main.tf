@@ -22,10 +22,6 @@
 
 #   }
 
-#   metadata_options {
-#     instance_metadata_tags = "enabled"
-#   }
-
 #   tags = var.tags
 
 # }
