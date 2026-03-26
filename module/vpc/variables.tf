@@ -26,23 +26,27 @@ variable "nat_type" {
 
 variable "nat_ebs_kms" {
   description = "KMS Id for Nat Volumn"
-  type = string
-  
+  type        = string
+
 }
 
 variable "nat_ebs_volumn" {
   description = "Volumn sixe of Nat instance"
-  type = string
+  type        = number
 }
 
 variable "nat_instance_key_pair" {
   description = "KMS Id for Nat Volumn"
-  type = string
+  type        = string
+}
+variable "nat_instance_ami" {
+  description = "Ami For Nat Instance"
+  type        = string
 }
 
 variable "nat_instance_type" {
   description = "Instance Type of nat Instance"
-  type = string
+  type        = string
 }
 
 variable "enable_ipv6" {

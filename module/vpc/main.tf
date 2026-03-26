@@ -72,7 +72,7 @@ resource "aws_subnet" "public_subnets" {
   vpc_id            = aws_vpc.main-vpc.id
   cidr_block        = cidrsubnet(aws_vpc.main-vpc.cidr_block, 8, (count.index + 1) * 10)
   availability_zone = data.aws_availability_zones.this.names[count.index]
-  ipv6_cidr_block   = var.enable_ipv6 ? cidrsubnet(aws_vpc.main-vpc.ipv6_cidr_block, 8, count.index + 1) : null
+  ipv6_cidr_block   = var.enable_ipv6 == true ? cidrsubnet(aws_vpc.main-vpc.ipv6_cidr_block, 8, count.index + 1) : null
   tags = {
     Name = "${replace(lower(var.project_name), " ", "-")}-Pub-${substr(data.aws_availability_zones.this.names[count.index], -2, -1)}"
   }
@@ -84,7 +84,7 @@ resource "aws_subnet" "private_subnets" {
   count             = length(data.aws_availability_zones.this.names)
   vpc_id            = aws_vpc.main-vpc.id
   cidr_block        = cidrsubnet(aws_vpc.main-vpc.cidr_block, 8, 10 * (count.index + 1 + length(data.aws_availability_zones.this.names)))
-  ipv6_cidr_block   = var.enable_ipv6 ? cidrsubnet(aws_vpc.main-vpc.ipv6_cidr_block, 8, (count.index + 1 + length(data.aws_availability_zones.this.names))) : null
+  ipv6_cidr_block   = var.enable_ipv6 == true ? cidrsubnet(aws_vpc.main-vpc.ipv6_cidr_block, 8, (count.index + 1 + length(data.aws_availability_zones.this.names))) : null
   availability_zone = data.aws_availability_zones.this.names[count.index]
   tags = {
     Name = "${replace(lower(var.project_name), " ", "-")}-Pvt-${substr(data.aws_availability_zones.this.names[count.index], -2, -1)}"
@@ -93,7 +93,7 @@ resource "aws_subnet" "private_subnets" {
 }
 
 resource "aws_eip" "eip" {
-  count  = var.enable_nat ? 1 : 0
+  count  = var.enable_nat == true ? 1 : 0
   domain = "vpc"
 
   tags = {
@@ -110,7 +110,7 @@ resource "aws_internet_gateway" "igw" {
 }
 
 resource "aws_nat_gateway" "nat" {
-  count         = var.enable_nat && var.nat_type == "gateway" ? 1 : 0
+  count         = var.enable_nat == true && var.nat_type == "gateway" ? 1 : 0
   allocation_id = aws_eip.eip[0].id
   subnet_id     = aws_subnet.public_subnets[0].id
 
@@ -121,135 +121,125 @@ resource "aws_nat_gateway" "nat" {
   depends_on = [aws_internet_gateway.igw]
 }
 
-data "aws_ami" "this" {
-  count         = var.enable_nat && var.nat_type == "instance" ? 1 : 0
-  most_recent = true
-  owners      = ["amazon"]
-  filter {
-    name   = "architecture"
-    values = ["x86_64"]
+resource "aws_instance" "this" {
+  count                       = var.enable_nat == true && var.nat_type == "instance" ? 1 : 0
+  ami                         = var.nat_instance_ami
+  instance_type               = var.nat_instance_type
+  associate_public_ip_address = false
+  disable_api_termination     = true
+  enable_primary_ipv6         = var.enable_ipv6
+  key_name                    = var.nat_instance_key_pair
+  source_dest_check           = false
+  # user_data                   = ""
+  subnet_id              = aws_subnet.public_subnets[1].id
+  vpc_security_group_ids = [aws_security_group.this.id]
+  root_block_device {
+    delete_on_termination = false
+    encrypted             = true
+    kms_key_id            = var.nat_ebs_kms
+    volume_type           = "gp3"
+    volume_size           = var.nat_ebs_volumn
   }
-
-  filter {
-    name   = "owner-alias"
-    values = ["amazon"]
-  }
-
-  filter {
-    name   = "owner-alias"
-    values = ["amazon"]
-  }
-
-  filter {
-    name   = "image-type"
-    values = ["machine"]
-  }
-
-  filter {
-    name   = "description"
-    values = ["Amazon Linux*"]
-  }
-  filter {
-    name   = "root-device-type"
-    values = ["ebs"]
-  }
-  filter {
-    name   = "virtualization-type"
-    values = ["hvm"]
-
-  }
-}
-resource "aws_instance" "name" {
-ami = data.aws_ami.this.id
-instance_type = var.nat_instance_type
-associate_public_ip_address = false
-disable_api_termination = true
-enable_primary_ipv6 = var.enable_ipv6
-key_name = var.nat_instance_key_pair
-source_dest_check = false
-user_data = ""
-subnet_id = aws_subnet.public_subnets[1].id
-vpc_security_group_ids = [aws_security_group.this.id]
-root_block_device{
-  delete_on_termination = false
-  encrypted = true
-  kms_key_id = var.nat_ebs_kms
-  volume_type = "gp3"
-  volume_size = var.nat_ebs_volumn
-}
-tags = {
+  tags = {
     Name = "${replace(lower(var.project_name), " ", "-")}-NAT"
   }
 }
 
+resource "aws_eip_association" "eip_assoc" {
+  count         = var.enable_nat == true && var.nat_type == "instance" ? 1 : 0
+  instance_id   = aws_instance.this[0].id
+  allocation_id = aws_eip.eip[0].id
+}
+
+
 resource "aws_security_group" "this" {
-  name = "${replace(lower(var.project_name), " ", "-")}-NAT-SG"
+  name   = "${replace(lower(var.project_name), " ", "-")}-NAT-SG"
+  vpc_id = aws_vpc.main-vpc.id
 
-  lifecycle {
-    create_before_destroy = true
-  }
+  # lifecycle {
+  #   create_before_destroy = true
+  # }
 
-  ingress{
-    from_port = 443
-    to_port = 443
-    protocol = "tcp"
+  ingress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
- dynamic "ingress" {
-   for_each = var.enable_ipv6 ? [1] : [0]
+  dynamic "ingress" {
+    for_each = var.enable_ipv6 == true ? [1] : []
 
-   content {
-     from_port = 443
-    to_port = 443
-    protocol = "tcp"
-    ipv6_cidr_blocks = ["::/0"]
-   }
- }
+    content {
+      from_port        = 443
+      to_port          = 443
+      protocol         = "tcp"
+      ipv6_cidr_blocks = ["::/0"]
+    }
+  }
 
- ingress{
-    from_port = 2223
-    to_port = 2223
-    protocol = "tcp"
+  ingress {
+    from_port   = 2223
+    to_port     = 2223
+    protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
- dynamic "ingress" {
-   for_each = var.enable_ipv6 ? [1] : [0]
+  dynamic "ingress" {
+    for_each = var.enable_ipv6 == true ? [1] : []
 
-   content {
-     from_port = 2223
-    to_port = 2223
-    protocol = "tcp"
-    ipv6_cidr_blocks = ["::/0"]
-   }
- }
+    content {
+      from_port        = 2223
+      to_port          = 2223
+      protocol         = "tcp"
+      ipv6_cidr_blocks = ["::/0"]
+    }
+  }
 
- ingress{
-    from_port = 1557
-    to_port = 1557
-    protocol = "udp"
+  ingress {
+    from_port   = 1557
+    to_port     = 1557
+    protocol    = "udp"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
- dynamic "ingress" {
-   for_each = var.enable_ipv6 ? [1] : [0]
+  dynamic "ingress" {
+    for_each = var.enable_ipv6 == true ? [1] : []
 
-   content {
-     from_port = 1557
-    to_port = 1557
-    protocol = "udp"
-    ipv6_cidr_blocks = ["::/0"]
-   }
- }
-  
+    content {
+      from_port        = 1557
+      to_port          = 1557
+      protocol         = "udp"
+      ipv6_cidr_blocks = ["::/0"]
+    }
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  dynamic "egress" {
+    for_each = var.enable_ipv6 == true ? [1] : []
+
+    content {
+      from_port        = 0
+      to_port          = 0
+      protocol         = "-1"
+      ipv6_cidr_blocks = ["::/0"]
+    }
+  }
+
+
 
 }
 
 
 
 resource "aws_egress_only_internet_gateway" "eigw" {
-  count  = var.enable_nat && var.enable_ipv6 ? 1 : 0
+  count  = var.enable_nat == true && var.enable_ipv6 == true && var.nat_type == "gateway" ? 1 : 0
   vpc_id = aws_vpc.main-vpc.id
   tags = {
     Name = "${replace(lower(var.project_name), " ", "-")}-EIGW"
@@ -287,7 +277,7 @@ resource "aws_route_table" "private_rt" {
   vpc_id = aws_vpc.main-vpc.id
 
   dynamic "route" {
-    for_each = var.enable_nat == true ? [1] : []
+    for_each = var.enable_nat == true && var.nat_type == "gateway" ? [1] : []
     content {
       cidr_block     = "0.0.0.0/0"
       nat_gateway_id = aws_nat_gateway.nat[0].id
@@ -295,7 +285,15 @@ resource "aws_route_table" "private_rt" {
   }
 
   dynamic "route" {
-    for_each = var.enable_ipv6 == true ? [1] : []
+    for_each = var.enable_nat == true && var.nat_type == "instance" ? [1] : []
+    content {
+      cidr_block           = "0.0.0.0/0"
+      network_interface_id = aws_instance.this[0].primary_network_interface_id
+    }
+  }
+
+  dynamic "route" {
+    for_each = var.enable_ipv6 == true && var.nat_type == "gateway" ? [1] : []
     content {
       ipv6_cidr_block        = "::/0"
       egress_only_gateway_id = aws_egress_only_internet_gateway.eigw[0].id
@@ -327,7 +325,7 @@ resource "aws_vpc_endpoint" "s3" {
   vpc_endpoint_type = "Gateway"
   service_name      = "com.amazonaws.${data.aws_region.current.region}.s3"
   route_table_ids   = [aws_route_table.private_rt.id, aws_route_table.public_rt.id]
-  ip_address_type   = var.enable_ipv6 ? "dualstack" : "ipv4"
+  ip_address_type   = var.enable_ipv6 == true ? "dualstack" : "ipv4"
   tags = {
     Name = "${replace(lower(var.project_name), " ", "-")}-VPC-S3-GateWay-Endpoint"
   }
