@@ -34,7 +34,7 @@ module "my-kms" {
 
 module "my-vpc" {
   source                = "./module/vpc"
-  enable_ipv6           = true
+  enable_ipv6           = false
   vpc_cidr              = "10.100.0.0/16"
   enable_nat            = true
   project_name          = "test"

@@ -126,7 +126,6 @@ resource "aws_instance" "this" {
   ami                         = var.nat_instance_ami
   instance_type               = var.nat_instance_type
   associate_public_ip_address = false
-  disable_api_termination     = true
   enable_primary_ipv6         = var.enable_ipv6
   key_name                    = var.nat_instance_key_pair
   source_dest_check           = false
