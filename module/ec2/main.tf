@@ -7,9 +7,7 @@
 #   enable_primary_ipv6 = var.instance_ipv6
 #   iam_instance_profile = var.instance_profile
 #   force_destroy = true
-#   get_password_data=false
 #   key_name = var.key_pair_name
-#   source_dest_check = var.source_dest_check
 #   vpc_security_group_ids = [var.vpc_security_group_id]
 #   user_data = var.user_data
 

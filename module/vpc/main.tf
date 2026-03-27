@@ -126,12 +126,31 @@ resource "aws_instance" "this" {
   ami                         = var.nat_instance_ami
   instance_type               = var.nat_instance_type
   associate_public_ip_address = false
+  disable_api_termination     = true
+  force_destroy               = true
   enable_primary_ipv6         = var.enable_ipv6
   key_name                    = var.nat_instance_key_pair
   source_dest_check           = false
-  # user_data                   = ""
-  subnet_id              = aws_subnet.public_subnets[1].id
-  vpc_security_group_ids = [aws_security_group.this.id]
+  iam_instance_profile        = var.nat_instance_profile
+  user_data                   = <<-EOT
+    #!/bin/bash
+
+    sudo yum update -y
+
+    sudo yum install iptables-services -y
+    sudo systemctl enable iptables
+    sudo systemctl start iptables
+
+    echo "net.ipv4.ip_forward=1" > /etc/sysctl.d/custom-ip-forwarding.conf
+    sudo sysctl -p /etc/sysctl.d/custom-ip-forwarding.conf
+
+    net=$(ip route show default | awk '{print $5}')
+    sudo /sbin/iptables -t nat -A POSTROUTING -o $net -j MASQUERADE
+    sudo /sbin/iptables -F FORWARD
+    sudo service iptables save
+EOT
+  subnet_id                   = aws_subnet.public_subnets[1].id
+  vpc_security_group_ids      = [aws_security_group.this.id]
   root_block_device {
     delete_on_termination = false
     encrypted             = true
@@ -160,58 +179,23 @@ resource "aws_security_group" "this" {
   # }
 
   ingress {
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = [aws_vpc.main-vpc.cidr_block]
   }
 
   dynamic "ingress" {
     for_each = var.enable_ipv6 == true ? [1] : []
 
     content {
-      from_port        = 443
-      to_port          = 443
-      protocol         = "tcp"
-      ipv6_cidr_blocks = ["::/0"]
+      from_port        = 0
+      to_port          = 0
+      protocol         = "-1"
+      ipv6_cidr_blocks = [aws_vpc.main-vpc.ipv6_cidr_block]
     }
   }
 
-  ingress {
-    from_port   = 2223
-    to_port     = 2223
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  dynamic "ingress" {
-    for_each = var.enable_ipv6 == true ? [1] : []
-
-    content {
-      from_port        = 2223
-      to_port          = 2223
-      protocol         = "tcp"
-      ipv6_cidr_blocks = ["::/0"]
-    }
-  }
-
-  ingress {
-    from_port   = 1557
-    to_port     = 1557
-    protocol    = "udp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  dynamic "ingress" {
-    for_each = var.enable_ipv6 == true ? [1] : []
-
-    content {
-      from_port        = 1557
-      to_port          = 1557
-      protocol         = "udp"
-      ipv6_cidr_blocks = ["::/0"]
-    }
-  }
 
   egress {
     from_port   = 0

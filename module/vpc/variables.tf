@@ -60,9 +60,14 @@ variable "flow-log-bucket-retention-days" {
   default     = 15
 }
 
+variable "nat_instance_profile" {
+  description = "IAM role for Nat Instance"
+  type        = string
+  default     = null
+}
 
 variable "tags" {
   description = "Define VPC tags"
   type        = map(string)
-  default     = {}
+  default     = null
 }
