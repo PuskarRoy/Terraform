@@ -149,7 +149,7 @@ resource "aws_instance" "this" {
     sudo /sbin/iptables -F FORWARD
     sudo service iptables save
 EOT
-  subnet_id                   = aws_subnet.public_subnets[1].id
+  subnet_id                   = aws_subnet.public_subnets[0].id
   vpc_security_group_ids      = [aws_security_group.this.id]
   root_block_device {
     delete_on_termination = false
@@ -159,7 +159,7 @@ EOT
     volume_size           = var.nat_ebs_volumn
   }
   tags = {
-    Name = "${replace(lower(var.project_name), " ", "-")}-NAT"
+    Name = "${replace(lower(var.project_name), " ", "-")}-NAT-1a"
   }
 }
 
@@ -276,7 +276,15 @@ resource "aws_route_table" "private_rt" {
   }
 
   dynamic "route" {
-    for_each = var.enable_ipv6 == true && var.nat_type == "gateway" ? [1] : []
+    for_each = var.enable_ipv6 == true && var.enable_nat == true && var.nat_type == "instance" ? [1] : []
+    content {
+      ipv6_cidr_block           = "::/0"
+      network_interface_id = aws_instance.this[0].primary_network_interface_id
+    }
+  }
+
+  dynamic "route" {
+    for_each = var.enable_nat == true && var.enable_ipv6 == true && var.nat_type == "gateway" ? [1] : []
     content {
       ipv6_cidr_block        = "::/0"
       egress_only_gateway_id = aws_egress_only_internet_gateway.eigw[0].id

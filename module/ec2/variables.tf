@@ -36,7 +36,7 @@ variable "vpc_security_group_id" {
   type        = string
 }
 
-variable "user_data_file_path" {
+variable "user_data" {
   description = "User Data File Path"
   type        = string
   default     = null

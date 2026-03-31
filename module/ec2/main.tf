@@ -9,7 +9,7 @@ resource "aws_instance" "ec2" {
   force_destroy               = true
   key_name                    = var.key_pair_name
   vpc_security_group_ids      = [var.vpc_security_group_id]
-  user_data                   = var.user_data_file_path
+  user_data                   = var.user_data
 
   root_block_device {
     delete_on_termination = false
