@@ -11,9 +11,8 @@ module "s3-bucket" {
 }
 
 module "my-kms" {
-  source          = "./module/kms"
-  project_name    = var.project_name
-  kms-policy-path = "./assets/policies/kms-key-policy.json"
+  source       = "./module/kms"
+  project_name = var.project_name
 }
 
 module "my-vpc" {
@@ -22,7 +21,6 @@ module "my-vpc" {
   enable_nat   = true
   project_name = "test"
 }
-
 
 module "server1-ubuntu" {
   source            = "./module/ec2"
@@ -34,7 +32,7 @@ module "server1-ubuntu" {
   root_volumn_size  = 12
   subnet_id         = module.my-vpc.public_subnets_ids[1]
   security_group_id = aws_security_group.this.id
-  elastic_ip = true
+  elastic_ip        = true
 
   tags = {
     "Name" = "server1-ubuntu-controll",

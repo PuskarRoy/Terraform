@@ -3,11 +3,6 @@ variable "project_name" {
   type        = string
 }
 
-variable "kms-policy-path" {
-  description = "path of KMS Key Policy (Json)"
-  type        = string
-}
-
 variable "tags" {
   description = "Define tags"
   type        = map(string)

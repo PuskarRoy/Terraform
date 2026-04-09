@@ -15,7 +15,7 @@ output "vpc-cidr_block_ipv6" {
 
 output "public_subnets_ids" {
   description = "Public subnets cidr"
-  value       = aws_subnet.private_subnets[*].id
+  value       = aws_subnet.public_subnets[*].id
 }
 
 output "private_subnets_ids" {

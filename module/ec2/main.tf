@@ -1,15 +1,14 @@
 resource "aws_instance" "this" {
-  ami                         = var.ami
-  associate_public_ip_address = false
-  instance_type               = var.instance_type
-  subnet_id                   = var.subnet_id
-  disable_api_termination     = true
-  enable_primary_ipv6         = var.enable_instance_ipv6
-  iam_instance_profile        = var.instance_profile
-  force_destroy               = true
-  key_name                    = var.key_pair_name
-  vpc_security_group_ids      = [var.security_group_id]
-  user_data                   = var.user_data
+  ami                     = var.ami
+  instance_type           = var.instance_type
+  subnet_id               = var.subnet_id
+  disable_api_termination = true
+  enable_primary_ipv6     = var.enable_instance_ipv6
+  iam_instance_profile    = var.instance_profile
+  force_destroy           = true
+  key_name                = var.key_pair_name
+  vpc_security_group_ids  = [var.security_group_id]
+  user_data               = var.user_data
 
   root_block_device {
     delete_on_termination = false
