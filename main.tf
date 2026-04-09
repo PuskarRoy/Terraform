@@ -24,61 +24,23 @@ module "my-vpc" {
 }
 
 
-
-module "server1-amzn" {
-  source                = "./module/ec2"
-  ami                   = "ami-0931307dcdc2a28c9"
-  instance_profile      = "ec2-admin"
-  key_pair_name         = module.ec2_key_pair.key_pair_name
-  kms_key_id            = module.my-kms.arn
-  instance_type         = "t3.small"
-  root_volumn_size      = 12
-  subnet_id             = module.my-vpc.private_subnets_ids[1]
-  vpc_security_group_id = aws_security_group.this.id
-
-  tags = {
-    "Name"                = "server1-amazon",
-    "Ansible-Automation" = "Yes"
-  }
-
-}
-
-module "server2-ubuntu" {
-  source                = "./module/ec2"
-  ami                   = "ami-05d2d839d4f73aafb"
-  instance_profile      = "ec2-admin"
-  key_pair_name         = module.ec2_key_pair.key_pair_name
-  kms_key_id            = module.my-kms.arn
-  instance_type         = "t3.small"
-  root_volumn_size      = 12
-  subnet_id             = module.my-vpc.private_subnets_ids[1]
-  vpc_security_group_id = aws_security_group.this.id
+module "server1-ubuntu" {
+  source            = "./module/ec2"
+  ami               = "ami-05d2d839d4f73aafb"
+  instance_profile  = "ec2-admin"
+  key_pair_name     = module.ec2_key_pair.key_pair_name
+  kms_key_id        = module.my-kms.arn
+  instance_type     = "t3.small"
+  root_volumn_size  = 12
+  subnet_id         = module.my-vpc.public_subnets_ids[1]
+  security_group_id = aws_security_group.this.id
+  elastic_ip = true
 
   tags = {
-    "Name"                = "server2-ubuntu-controll",
-    "Ansible-Automation" = "Yes"
+    "Name" = "server1-ubuntu-controll",
   }
-
 }
 
-module "server3-redhat" {
-  source                = "./module/ec2"
-  ami                   = "ami-03793655b06c6e29a"
-  instance_profile      = "ec2-admin"
-  key_pair_name         = module.ec2_key_pair.key_pair_name
-  kms_key_id            = module.my-kms.arn
-  instance_type         = "t3.small"
-  root_volumn_size      = 12
-  user_data             = file("./assets/user-data/redhat-ssm-agent.sh")
-  subnet_id             = module.my-vpc.private_subnets_ids[1]
-  vpc_security_group_id = aws_security_group.this.id
-
-  tags = {
-    "Name"                = "server3-redhat",
-    "Ansible-Automation" = "Yes"
-  }
-
-}
 
 
 resource "aws_security_group" "this" {

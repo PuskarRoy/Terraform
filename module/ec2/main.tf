@@ -1,4 +1,4 @@
-resource "aws_instance" "ec2" {
+resource "aws_instance" "this" {
   ami                         = var.ami
   associate_public_ip_address = false
   instance_type               = var.instance_type
@@ -8,7 +8,7 @@ resource "aws_instance" "ec2" {
   iam_instance_profile        = var.instance_profile
   force_destroy               = true
   key_name                    = var.key_pair_name
-  vpc_security_group_ids      = [var.vpc_security_group_id]
+  vpc_security_group_ids      = [var.security_group_id]
   user_data                   = var.user_data
 
   root_block_device {
@@ -24,9 +24,22 @@ resource "aws_instance" "ec2" {
 }
 
 
+resource "aws_eip" "this" {
+  count  = var.elastic_ip == true ? 1 : 0
+  domain = "vpc"
+}
+
+resource "aws_eip_association" "eip_assoc" {
+  count         = var.elastic_ip == true ? 1 : 0
+  instance_id   = aws_instance.this.id
+  allocation_id = aws_eip.this[0].id
+}
+
+
+
 
 # resource "aws_security_group" "this" {
-#   name   = "EC2-SG"
+#   name   = "this-SG"
 #   vpc_id = aws_vpc.main-vpc.id
 
 #   # lifecycle {

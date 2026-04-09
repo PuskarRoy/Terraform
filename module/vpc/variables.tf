@@ -27,7 +27,7 @@ variable "nat_type" {
 variable "nat_ebs_kms" {
   description = "KMS Id for Nat Volumn"
   type        = string
-  default = null
+  default     = null
 
 }
 
@@ -40,12 +40,12 @@ variable "nat_ebs_volumn" {
 variable "nat_instance_key_pair" {
   description = "KMS Id for Nat Volumn"
   type        = string
-  default = "null"
+  default     = "null"
 }
 variable "nat_instance_ami" {
   description = "Ami For Nat Instance"
   type        = string
-  default = null
+  default     = null
 }
 
 variable "nat_instance_type" {
@@ -57,7 +57,7 @@ variable "nat_instance_type" {
 variable "enable_ipv6" {
   description = "Enable IPv6 for the VPC"
   type        = bool
-  default = false
+  default     = false
 }
 
 variable "flow-log-bucket-retention-days" {

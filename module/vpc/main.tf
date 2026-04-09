@@ -278,7 +278,7 @@ resource "aws_route_table" "private_rt" {
   dynamic "route" {
     for_each = var.enable_ipv6 == true && var.enable_nat == true && var.nat_type == "instance" ? [1] : []
     content {
-      ipv6_cidr_block           = "::/0"
+      ipv6_cidr_block      = "::/0"
       network_interface_id = aws_instance.this[0].primary_network_interface_id
     }
   }

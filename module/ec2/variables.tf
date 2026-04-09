@@ -13,6 +13,11 @@ variable "subnet_id" {
   type        = string
 }
 
+variable "elastic_ip" {
+  description = "Whether you add elastic ip or not"
+  type        = bool
+}
+
 
 variable "enable_instance_ipv6" {
   description = "Enable the Ipv6 address of ec2"
@@ -31,7 +36,7 @@ variable "key_pair_name" {
   type        = string
 }
 
-variable "vpc_security_group_id" {
+variable "security_group_id" {
   description = "Security group id of Ec2"
   type        = string
 }
