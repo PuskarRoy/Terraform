@@ -5,13 +5,15 @@ module "ec2_key_pair" {
 }
 
 module "s3-bucket" {
-  source            = "./module/s3"
-  bucket_name       = "test-bucket"
+  source = "./module/s3"
   bucket_versioning = false
+  bucket_name = "test-bucket"
+
+  
 }
 
 module "my-kms" {
-  source       = "./module/kms"
+  source = "./module/kms"
   project_name = var.project_name
 }
 
@@ -68,7 +70,14 @@ resource "aws_security_group" "this" {
 
 
 
-
+module "tg" {
+  source      = "./module/target-group"
+  vpc_id      = module.my-vpc.vpc-id
+  tg_name     = "test-TG"
+  tg_port     = 80
+  tg_protocol = "HTTP"
+  tg_targets  = [module.server1-ubuntu.id]
+}
 
 
 
