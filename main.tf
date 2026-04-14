@@ -5,15 +5,14 @@ module "ec2_key_pair" {
 }
 
 module "s3-bucket" {
-  source = "./module/s3"
+  source            = "./module/s3"
   bucket_versioning = false
-  bucket_name = "test-bucket"
+  bucket_name       = "test-bucket"
 
-  
 }
 
 module "my-kms" {
-  source = "./module/kms"
+  source       = "./module/kms"
   project_name = var.project_name
 }
 
@@ -68,8 +67,6 @@ resource "aws_security_group" "this" {
 }
 
 
-
-
 module "tg" {
   source      = "./module/target-group"
   vpc_id      = module.my-vpc.vpc-id
@@ -79,6 +76,11 @@ module "tg" {
   tg_targets  = [module.server1-ubuntu.id]
 }
 
+module "lb" {
+  source               = "./module/load-balancer"
+  project_name         = "test"
+  lb_name              = "test-ALB"
+  lb_security_group_id = aws_security_group.this.id
+  lb_subnet_ids        = module.my-vpc.public_subnets_ids
 
-
-
+}
