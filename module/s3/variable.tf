@@ -12,6 +12,7 @@ variable "tags" {
 variable "bucket_versioning" {
   description = "Enable Bucket Versioning"
   type        = bool
+  default     = false
 }
 
 variable "encryption-type" {

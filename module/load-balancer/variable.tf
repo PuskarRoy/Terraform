@@ -3,6 +3,11 @@ variable "lb_name" {
   type        = string
 }
 
+variable "lb_access_log_bucket_id" {
+  description = "Bucket For Alb Access Log"
+  type        = string
+}
+
 variable "private" {
   description = "Weather ALB will public or private"
   type        = bool
@@ -16,10 +21,10 @@ variable "lb_type" {
 
   validation {
     condition = contains(
-      ["application", "network", "gateway"],
+      ["application", "network"],
       var.lb_type
     )
-    error_message = "Invalid lb_type. Allowed values: application, network, gateway."
+    error_message = "Invalid lb_type. Allowed values: application, network."
   }
 }
 
@@ -46,9 +51,4 @@ variable "lb_subnet_ids" {
   description = "List of subnet IDs for the Load Balancer"
   type        = list(string)
 
-}
-
-variable "project_name" {
-  description = "Project Name"
-  type        = string
 }

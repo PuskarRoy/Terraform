@@ -5,50 +5,46 @@ resource "aws_lb" "this" {
   enable_cross_zone_load_balancing = true
   ip_address_type                  = var.enable_ipv6 == false ? "ipv4" : "dualstack"
   security_groups                  = [var.lb_security_group_id]
-  subnets                          = toset(var.lb_subnet_ids)
+  subnets                          = var.lb_type == "application" ? toset(var.lb_subnet_ids) : null
 
   access_logs {
-    bucket  = aws_s3_bucket.this.id
+    bucket  = var.lb_access_log_bucket_id
     enabled = true
     prefix  = var.lb_name
+  }
+
+  dynamic "subnet_mapping" {
+    for_each = var.lb_type == "network" ? var.lb_subnet_ids : []
+    content {
+      subnet_id     = subnet_mapping.value
+      allocation_id = aws_eip.this[index(var.lb_subnet_ids, subnet_mapping.value)].id
+    }
   }
 
   tags = var.tags
 }
 
 
-resource "random_id" "s3_suffix" {
-  byte_length = 4
-}
+resource "aws_eip" "this" {
+  count  = var.lb_type == "network" ? length(var.lb_subnet_ids) : 0
+  domain = "vpc"
 
-resource "aws_s3_bucket" "this" {
-  bucket        = "${replace(lower(var.project_name), " ", "-")}-alb-access-logs-${lower(random_id.s3_suffix.hex)}"
-  force_destroy = true
-}
-
-resource "aws_s3_bucket_server_side_encryption_configuration" "this" {
-  bucket = aws_s3_bucket.this.id
-
-  rule {
-    apply_server_side_encryption_by_default {
-      sse_algorithm = "AES256"
-    }
-    bucket_key_enabled = true
+  tags = {
+    "Name" = "${var.lb_name}-EIP"
   }
-
 }
+
 
 resource "aws_s3_bucket_policy" "this" {
-  bucket = aws_s3_bucket.this.id
+  bucket = var.lb_access_log_bucket_id
   policy = data.aws_iam_policy_document.this.json
 }
-
 
 data "aws_iam_policy_document" "this" {
   statement {
     principals {
       type        = "Service"
-      identifiers = ["logdelivery.elasticloadbalancing.amazonaws.com"]
+      identifiers = ["logdelivery.elasticloadbalancing.amazonaws.com","delivery.logs.amazonaws.com"]
     }
 
     actions = [
@@ -56,7 +52,22 @@ data "aws_iam_policy_document" "this" {
     ]
 
     resources = [
-      "${aws_s3_bucket.this.arn}/*"
+      "arn:aws:s3:::${var.lb_access_log_bucket_id}/*"
+    ]
+  }
+
+  statement {
+    principals {
+      type        = "Service"
+      identifiers = ["logdelivery.elasticloadbalancing.amazonaws.com" , "delivery.logs.amazonaws.com"]
+    }
+
+    actions = [
+      "s3:GetBucketAcl",
+    ]
+
+    resources = [
+      "arn:aws:s3:::${var.lb_access_log_bucket_id}"
     ]
   }
 }
