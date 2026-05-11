@@ -31,10 +31,44 @@ module "server1-windows" {
   root_volumn_size  = 30
   subnet_id         = module.my-vpc.public_subnets_ids[1]
   security_group_id = aws_security_group.this.id
-  elastic_ip        = false
+  elastic_ip        = true
 
   tags = {
     "Name" = "Windows-DC",
+  }
+}
+
+module "server2-windows" {
+  source            = "./module/ec2"
+  ami               = "ami-09209f0b1db190287"
+  instance_profile  = "ec2-admin"
+  key_pair_name     = module.ec2_key_pair.key_pair_name
+  kms_key_id        = module.my-kms.arn
+  instance_type     = "t3a.medium"
+  root_volumn_size  = 30
+  subnet_id         = module.my-vpc.public_subnets_ids[1]
+  security_group_id = aws_security_group.this.id
+  elastic_ip        = true
+
+  tags = {
+    "Name" = "Windows-SRV-Base",
+  }
+}
+
+module "server3-windows" {
+  source            = "./module/ec2"
+  ami               = "ami-0d221dc76ccc306cb"
+  instance_profile  = "ec2-admin"
+  key_pair_name     = module.ec2_key_pair.key_pair_name
+  kms_key_id        = module.my-kms.arn
+  instance_type     = "t3a.medium"
+  root_volumn_size  = 30
+  subnet_id         = module.my-vpc.public_subnets_ids[1]
+  security_group_id = aws_security_group.this.id
+  elastic_ip        = true
+
+  tags = {
+    "Name" = "Windows-SRV-Core",
   }
 }
 
@@ -87,6 +121,4 @@ resource "aws_security_group" "this" {
 #   lb_security_group_id    = aws_security_group.this.id
 #   lb_subnet_ids           = module.my-vpc.public_subnets_ids
 # }
-
-
 
