@@ -8,6 +8,8 @@ on:
 permissions:
   id-token: write
   contents: read
+env:
+  TF_PLUGIN_CACHE_DIR: ~/.terraform.d/plugin-cache
 jobs:
   plan:
     runs-on: ubuntu-latest
@@ -26,8 +28,8 @@ jobs:
       - name: Cache Terraform Dependencies
         uses: actions/cache@v4
         with:
-          path: ./.terraform/providers/*
-          key: terraform-cache-${{ hashFiles('./.terraform.lock.hcl') }}
+          path: ~/.terraform.d/plugin-cache
+          key: terraform-cache-${{ hashFiles('**/.terraform.lock.hcl') }}
       - name: Terraform Initialization
         run: terraform init -no-color
       - name: Teraform Validation
@@ -57,8 +59,8 @@ jobs:
       - name: Cache Terraform Dependencies
         uses: actions/cache@v4
         with:
-          path: ./.terraform/providers/*
-          key: terraform-cache-${{ hashFiles('./.terraform.lock.hcl') }}
+          path: ~/.terraform.d/plugin-cache
+          key: terraform-cache-${{ hashFiles('**/.terraform.lock.hcl') }}
       - name: Terraform Initialization
         run: terraform init -no-color
       - name: Download Terraform Plan
