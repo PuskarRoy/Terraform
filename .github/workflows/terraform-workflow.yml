@@ -16,19 +16,21 @@ jobs:
     steps:
       - name: Get code from Github Repository
         uses: actions/checkout@v6
-      - name: Installing Terraform
-        uses: hashicorp/setup-terraform@v4
-        with: 
-          terraform_version: "1.13"
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v6.1.0
         with: 
           aws-region: ap-south-1
           role-to-assume: arn:aws:iam::388458311239:role/github-action-role
+      - name: Installing Terraform
+        uses: hashicorp/setup-terraform@v4
+        with: 
+          terraform_version: "1.13"
+      - name: Create Terraform Plugin Cache Dir
+        run: mkdir --parents $TF_PLUGIN_CACHE_DIR
       - name: Cache Terraform Dependencies
         uses: actions/cache@v4
         with:
-          path: ~/.terraform.d/plugin-cache
+          path: ${{ env.TF_PLUGIN_CACHE_DIR }}
           key: terraform-cache-${{ hashFiles('**/.terraform.lock.hcl') }}
       - name: Terraform Initialization
         run: terraform init -no-color
@@ -47,19 +49,21 @@ jobs:
     steps:
       - name: Get code from Github Repository
         uses: actions/checkout@v6
-      - name: Installing Terraform
-        uses: hashicorp/setup-terraform@v4
-        with: 
-          terraform_version: "1.13"
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v6.1.0
         with: 
           aws-region: ap-south-1
           role-to-assume: arn:aws:iam::388458311239:role/github-action-role
+      - name: Installing Terraform
+        uses: hashicorp/setup-terraform@v4
+        with: 
+          terraform_version: "1.13"
+      - name: Create Terraform Plugin Cache Dir
+        run: mkdir --parents $TF_PLUGIN_CACHE_DIR
       - name: Cache Terraform Dependencies
         uses: actions/cache@v4
         with:
-          path: ~/.terraform.d/plugin-cache
+          path: ${{ env.TF_PLUGIN_CACHE_DIR }}
           key: terraform-cache-${{ hashFiles('**/.terraform.lock.hcl') }}
       - name: Terraform Initialization
         run: terraform init -no-color
