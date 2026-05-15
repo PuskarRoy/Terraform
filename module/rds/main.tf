@@ -17,9 +17,9 @@ resource "aws_db_instance" "this" {
   backup_retention_period = var.backup_retention_period
   backup_window           = var.backup_window
   db_subnet_group_name    = aws_db_subnet_group.this.name
- # deletion_protection     = true
-  engine                  = var.engine
-  engine_version          = var.engine_version
+  # deletion_protection     = true
+  engine                              = var.engine
+  engine_version                      = var.engine_version
   final_snapshot_identifier           = "${replace(lower(var.database_Name), " ", "-")}-final-snapshot"
   iam_database_authentication_enabled = var.iam_database_authentication_enabled
   manage_master_user_password         = true
