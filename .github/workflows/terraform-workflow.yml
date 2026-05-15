@@ -1,0 +1,31 @@
+---
+name: Terraform Github Action Workflow
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+permissions:
+  id-token: write
+  contents: read
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get code from Github Repository
+        uses: actions/checkout@v6
+      - name: Installing Terraform
+        uses: hashicorp/setup-terraform@v4
+        with: 
+          terraform_version: "1.13"
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v6.1.0
+        with: 
+          role-to-assume: arn:aws:iam::388458311239:role/github-action-role
+      - name: Terraform Initialization
+        run: terraform init
+      - name: Teraform Validation
+        run: terraform validate -no-color
+      - name: Terraform Plan
+        run: terraform plan
+       
