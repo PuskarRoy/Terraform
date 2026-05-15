@@ -23,6 +23,11 @@ jobs:
         with: 
           aws-region: ap-south-1
           role-to-assume: arn:aws:iam::388458311239:role/github-action-role
+      - name: Cache Terraform Dependencies
+        uses: actions/cache@v4
+        with:
+          path: ./.terraform/providers
+          key: terraform-cache-${{ hashFiles('./.terraform.lock.hcl') }}
       - name: Terraform Initialization
         run: terraform init -no-color
       - name: Teraform Validation
@@ -56,5 +61,5 @@ jobs:
         with:
           name: tfplan
       - name: Terraform Apply
-        run: terraform apply -auto-approve -no-color
+        run: terraform apply -auto-approve -no-color 
        
