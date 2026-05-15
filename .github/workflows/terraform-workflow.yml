@@ -26,7 +26,7 @@ jobs:
         with: 
           terraform_version: "1.13"
       - name: Create Terraform Plugin Cache Dir
-        run: mkdir --parents $TF_PLUGIN_CACHE_DIR
+        run: mkdir -p ${{ env.TF_PLUGIN_CACHE_DIR }}
       - name: Cache Terraform Dependencies
         uses: actions/cache@v4
         with:
@@ -59,7 +59,7 @@ jobs:
         with: 
           terraform_version: "1.13"
       - name: Create Terraform Plugin Cache Dir
-        run: mkdir --parents $TF_PLUGIN_CACHE_DIR
+        run: mkdir -p ${{ env.TF_PLUGIN_CACHE_DIR }}
       - name: Cache Terraform Dependencies
         uses: actions/cache@v4
         with:
