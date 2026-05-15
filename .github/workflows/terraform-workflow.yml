@@ -29,4 +29,23 @@ jobs:
         run: terraform validate -no-color
       - name: Terraform Plan
         run: terraform plan
+  deploy:
+    runs-on: ubuntu-latest
+    needs: plan
+    steps:
+      - name: Get code from Github Repository
+        uses: actions/checkout@v6
+      - name: Installing Terraform
+        uses: hashicorp/setup-terraform@v4
+        with: 
+          terraform_version: "1.13"
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v6.1.0
+        with: 
+          aws-region: ap-south-1
+          role-to-assume: arn:aws:iam::388458311239:role/github-action-role
+      - name: Terraform Initialization
+        run: terraform init
+      - name: Terraform Apply
+        run: terraform apply -auto-approve
        
