@@ -33,12 +33,12 @@ jobs:
       - name: Teraform Validation
         run: terraform validate -no-color 
       - name: Terraform Plan
-        run: terraform plan -no-color -out=tfplan
+        run: terraform plan -no-color -out=main.tfplan
       - name: Terraform Plan Upload
         uses: actions/upload-artifact@v7
         with:
           name: tfplan
-          path: .
+          path: ./main.tfplan
   deploy:
     runs-on: ubuntu-latest
     needs: plan
@@ -62,9 +62,10 @@ jobs:
       - name: Terraform Initialization
         run: terraform init -no-color
       - name: Download Terraform Plan
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@v7
         with:
           name: tfplan
+          path: .
       - name: Terraform Apply
-        run: terraform apply -auto-approve -no-color tfplan
+        run: terraform apply -auto-approve -no-color main.tfplan
        

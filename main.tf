@@ -1,18 +1,18 @@
-# module "ec2_key_pair" {
-#   source        = "./module/key-pair"
-#   bucket_name   = module.s3-bucket.id
-#   key_pair_name = "keypair"
-# }
-
-# module "s3-bucket" {
-#   source      = "./module/s3"
-#   bucket_name = "test-bucket"
-# }
-
-module "my-kms" {
-  source       = "./module/kms"
-  project_name = var.project_name
+module "ec2_key_pair" {
+  source        = "./module/key-pair"
+  bucket_name   = module.s3-bucket.id
+  key_pair_name = "keypair"
 }
+
+module "s3-bucket" {
+  source      = "./module/s3"
+  bucket_name = "test-bucket"
+}
+
+# module "my-kms" {
+#   source       = "./module/kms"
+#   project_name = var.project_name
+# }
 
 # module "my-vpc" {
 #   source       = "./module/vpc"
