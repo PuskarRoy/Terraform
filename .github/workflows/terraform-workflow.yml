@@ -26,6 +26,13 @@ jobs:
           key: terraform-${{ runner.os }}-${{ hashFiles('**/.terraform.lock.hcl') }}
           restore-keys: |
             terraform-${{ runner.os }}-
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v6.1.0
+        with: 
+          aws-region: ap-south-1
+          role-to-assume: arn:aws:iam::388458311239:role/github-action-role
+          
       - name: Init Terraform configuration
         run: |
           terraform init
