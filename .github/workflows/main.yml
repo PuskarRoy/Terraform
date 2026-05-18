@@ -27,7 +27,7 @@ jobs:
       - name: Installing Terraform
         uses: hashicorp/setup-terraform@v4
         with: 
-          terraform_version: "1.14.6"
+          terraform_version: 1.15
 
       - name: Terraform Initialization
         run: terraform init -no-color
@@ -46,7 +46,7 @@ jobs:
 
   deploy:
     runs-on: ubuntu-latest
-    needs: plan
+    needs: [plan]
     steps:
       - name: Get code from Github Repository
         uses: actions/checkout@v6
@@ -56,20 +56,11 @@ jobs:
         with: 
           aws-region: ap-south-1
           role-to-assume: arn:aws:iam::388458311239:role/github-action-role
-
-      - name: Create Terraform Plugin Cache Dir
-        run: mkdir -p ${{ env.TF_PLUGIN_CACHE_DIR }}
         
       - name: Installing Terraform
         uses: hashicorp/setup-terraform@v4
         with: 
-          terraform_version: "1.14."
-
-      - name: Cache Terraform Dependencies
-        uses: actions/cache@v4
-        with:
-          path: ${{ env.TF_PLUGIN_CACHE_DIR }}
-          key: terraform-cache-${{ hashFiles('**/.terraform.lock.hcl') }}
+          terraform_version: 1.15
 
       - name: Terraform Initialization
         run: terraform init -no-color
