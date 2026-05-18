@@ -20,9 +20,6 @@ jobs:
         with:
           terraform_version: 1.15
 
-      - name: Configure Terraform Plugin Cache
-        run: mkdir -p "$TF_PLUGIN_CACHE_DIR"
-
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v6.1.0
         with:
