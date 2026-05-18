@@ -1,7 +1,11 @@
-name: Terraform provider cache example
+---
+name: Terraform Provider Cache Example
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - main
 
 permissions:
   id-token: write
@@ -9,34 +13,50 @@ permissions:
 
 jobs:
   main:
-    name: Example
+    name: Terraform Workflow
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout source
+      - name: Checkout Source Code
         uses: actions/checkout@v4
+
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: 1.13.1
-      - name: Configure Terraform plugin cache
+
+      - name: Configure Terraform Plugin Cache
         run: |
-          echo "TF_PLUGIN_CACHE_DIR=$HOME/.terraform.d/plugin-cache" >>"$GITHUB_ENV"
-          mkdir --parents "$HOME/.terraform.d/plugin-cache"
-      - name: Cache Terraform
+          echo "TF_PLUGIN_CACHE_DIR=$HOME/.terraform.d/plugin-cache" >> $GITHUB_ENV
+
+          mkdir -p $HOME/.terraform.d/plugin-cache
+
+          cat > ~/.terraformrc <<EOF
+          plugin_cache_dir = "$HOME/.terraform.d/plugin-cache"
+          EOF
+
+          echo "Terraform RC File:"
+          cat ~/.terraformrc
+
+      - name: Cache Terraform Providers
         uses: actions/cache@v4
         with:
-          path: |
-            ~/.terraform.d/plugin-cache
+          path: ~/.terraform.d/plugin-cache
           key: terraform-${{ runner.os }}-${{ hashFiles('**/.terraform.lock.hcl') }}
           restore-keys: |
             terraform-${{ runner.os }}-
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v6.1.0
-        with: 
+        with:
           aws-region: ap-south-1
           role-to-assume: arn:aws:iam::388458311239:role/github-action-role
 
-      - name: Init Terraform configuration
-        run: |
-          terraform init
+      - name: Terraform Init
+        run: terraform init -no-color
+
+      - name: Terraform Validate
+        run: terraform validate -no-color
+
+      - name: Terraform Plan
+        run: terraform plan -no-color
