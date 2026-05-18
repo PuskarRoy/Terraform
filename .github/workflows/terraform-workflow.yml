@@ -8,9 +8,6 @@ permissions:
   id-token: write
   contents: read
 
-env:
-  TF_PLUGIN_CACHE_DIR: $HOME/.terraform.d/plugin-cache
-
 jobs:
   main:
     runs-on: ubuntu-latest
@@ -25,12 +22,6 @@ jobs:
 
       - name: Configure Terraform Plugin Cache
         run: mkdir -p "$TF_PLUGIN_CACHE_DIR"
-
-      - name: Cache Terraform Providers
-        uses: actions/cache@v4
-        with:
-          path: ${{ env.TF_PLUGIN_CACHE_DIR }}
-          key: terraform-${{ runner.os }}-${{ hashFiles('**/.terraform.lock.hcl') }}
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v6.1.0
