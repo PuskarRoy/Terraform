@@ -1,5 +1,5 @@
 terraform {
-  required_version = "~> 1.13"
+  required_version = "~> 1.15"
 
   backend "s3" {
     bucket = "terraform-state-s3-bucket-388458311239"
@@ -14,7 +14,7 @@ terraform {
     }
     random = {
       source  = "hashicorp/random"
-      version = "~> 3.8"
+      version = "~> 3.9"
     }
 
     tls = {
