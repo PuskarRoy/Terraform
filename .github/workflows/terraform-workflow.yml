@@ -3,21 +3,20 @@ name: Terraform Provider Cache Example
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - main
 
 permissions:
   id-token: write
   contents: read
 
+env:
+  TF_PLUGIN_CACHE_DIR: $HOME/.terraform.d/plugin-cache
+
 jobs:
   main:
-    name: Terraform Workflow
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Source Code
+      - name: Checkout Source
         uses: actions/checkout@v4
 
       - name: Setup Terraform
@@ -27,24 +26,23 @@ jobs:
 
       - name: Configure Terraform Plugin Cache
         run: |
-          echo "TF_PLUGIN_CACHE_DIR=$HOME/.terraform.d/plugin-cache" >> $GITHUB_ENV
-
-          mkdir -p $HOME/.terraform.d/plugin-cache
+          mkdir -p "$TF_PLUGIN_CACHE_DIR"
 
           cat > ~/.terraformrc <<EOF
-          plugin_cache_dir = "$HOME/.terraform.d/plugin-cache"
+          plugin_cache_dir = "$TF_PLUGIN_CACHE_DIR"
           EOF
 
-          echo "Terraform RC File:"
+          echo "=== Terraform RC ==="
           cat ~/.terraformrc
+
+          echo "=== Cache Dir ==="
+          ls -la "$TF_PLUGIN_CACHE_DIR"
 
       - name: Cache Terraform Providers
         uses: actions/cache@v4
         with:
-          path: ~/.terraform.d/plugin-cache
+          path: ${{ env.TF_PLUGIN_CACHE_DIR }}
           key: terraform-${{ runner.os }}-${{ hashFiles('**/.terraform.lock.hcl') }}
-          restore-keys: |
-            terraform-${{ runner.os }}-
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v6.1.0
@@ -54,9 +52,3 @@ jobs:
 
       - name: Terraform Init
         run: terraform init -no-color
-
-      - name: Terraform Validate
-        run: terraform validate -no-color
-
-      - name: Terraform Plan
-        run: terraform plan -no-color
