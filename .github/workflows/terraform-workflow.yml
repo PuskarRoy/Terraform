@@ -41,6 +41,11 @@ jobs:
         uses: hashicorp/setup-terraform@v4
         with: 
           terraform_version: "1.13"
+      - name: Cache Terraform Dependencies
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.TF_PLUGIN_CACHE_DIR }}
+          key: terraform-cache-${{ hashFiles('**/.terraform.lock.hcl') }}
       - name: Terraform Initialization
         run: terraform init -no-color
       - name: Teraform Validation
@@ -69,6 +74,11 @@ jobs:
         uses: hashicorp/setup-terraform@v4
         with: 
           terraform_version: "1.13"
+      - name: Cache Terraform Dependencies
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.TF_PLUGIN_CACHE_DIR }}
+          key: terraform-cache-${{ hashFiles('**/.terraform.lock.hcl') }}
       - name: Terraform Initialization
         run: terraform init -no-color
       - name: Download Terraform Plan
