@@ -9,17 +9,17 @@
 #   bucket_name = "test-bucket"
 # }
 
-# module "my-kms" {
-#   source       = "./module/kms"
-#   project_name = var.project_name
-# }
+module "my-kms" {
+  source       = "./module/kms"
+  project_name = var.project_name
+}
 
-# module "my-vpc" {
-#   source       = "./module/vpc"
-#   vpc_cidr     = "10.100.0.0/16"
-#   enable_nat   = false
-#   project_name = "test"
-# }
+module "my-vpc" {
+  source       = "./module/vpc"
+  vpc_cidr     = "10.100.0.0/16"
+  enable_nat   = false
+  project_name = "test"
+}
 
 # module "Ubuntu-controll" {
 #   source            = "./module/ec2"
@@ -60,29 +60,29 @@
 # }
 
 
-# resource "aws_security_group" "this" {
-#   name   = "Ec2-SG"
-#   vpc_id = module.my-vpc.vpc-id
+resource "aws_security_group" "this" {
+  name   = "Ec2-SG"
+  vpc_id = module.my-vpc.vpc-id
 
-#   # lifecycle {
-#   #   create_before_destroy = true
-#   # }
+  # lifecycle {
+  #   create_before_destroy = true
+  # }
 
-#   ingress {
-#     from_port   = 0
-#     to_port     = 0
-#     protocol    = "-1" # For All Traffic
-#     cidr_blocks = ["0.0.0.0/0"]
-#   }
+  ingress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1" # For All Traffic
+    cidr_blocks = ["0.0.0.0/0"]
+  }
 
-#   egress {
-#     from_port   = 0
-#     to_port     = 0
-#     protocol    = "-1"
-#     cidr_blocks = ["0.0.0.0/0"]
-#   }
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
 
-# }
+}
 
 
 # # module "lb_access_log" {
@@ -109,4 +109,12 @@
 # #   lb_security_group_id    = aws_security_group.this.id
 # #   lb_subnet_ids           = module.my-vpc.public_subnets_ids
 # # }
+
+module "efs" {
+  source            = "./module/efs"
+  name              = "test"
+  kms_key_id        = module.my-kms.arn
+  target_subnets    = module.my-vpc.private_subnets_ids
+  security_group_id = aws_security_group.this.id
+}
 

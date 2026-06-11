@@ -1,10 +1,10 @@
 resource "aws_lb_target_group" "this" {
-  name                              = var.tg_name
-  vpc_id                            = var.vpc_id
+  name   = var.tg_name
+  vpc_id = var.vpc_id
   # load_balancing_cross_zone_enabled = false
-  port                              = var.tg_port
-  protocol                          = var.tg_protocol
-  
+  port     = var.tg_port
+  protocol = var.tg_protocol
+
   dynamic "stickiness" {
     for_each = var.enable_stickiness == true ? [1] : []
     content {

@@ -21,7 +21,7 @@ variable "lb_type" {
 
   validation {
     condition = contains(
-      ["application", "network" , "gateway"],
+      ["application", "network", "gateway"],
       var.lb_type
     )
     error_message = "Invalid lb_type. Allowed values: application, network, gateway."
