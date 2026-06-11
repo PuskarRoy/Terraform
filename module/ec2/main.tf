@@ -11,7 +11,7 @@ resource "aws_instance" "this" {
   user_data               = var.user_data
 
   root_block_device {
-    delete_on_termination = false
+    delete_on_termination = true
     encrypted             = true
     volume_size           = var.root_volumn_size
     volume_type           = "gp3"
