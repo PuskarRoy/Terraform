@@ -4,21 +4,19 @@ resource "aws_autoscaling_group" "this" {
   min_size         = var.min_size
   max_size         = var.max_size
   desired_capacity = var.desired_capacity
-
-  desired_capacity_type          = "units"
   availability_zone_distribution {
     capacity_distribution_strategy = "balanced-best-effort"
   }
-  default_cooldown         = 300
-  default_instance_warmup  = 300
-  health_check_type        = "ELB"
+  default_cooldown          = 300
+  default_instance_warmup   = 300
+  health_check_type         = "ELB" # EC2 / ELB
   health_check_grace_period = 300
 
-  vpc_zone_identifier = var.subnet_ids
+  vpc_zone_identifier = toset(var.subnet_ids)
 
   launch_template {
     id      = var.launch_template_id
-    version = "$Default"
+    version = "$Latest"
   }
 
   instance_maintenance_policy {
@@ -28,10 +26,10 @@ resource "aws_autoscaling_group" "this" {
 
   instance_refresh {
     strategy = "Rolling"
-    triggers = [launch_template]
+    triggers = ["launch_template"]
   }
 
-  
+
 }
 
 resource "aws_autoscaling_attachment" "example" {

@@ -56,4 +56,5 @@ variable "tags" {
 variable "tg_targets" {
   description = "Targets Arns for target group"
   type        = list(string)
+  default = []
 }

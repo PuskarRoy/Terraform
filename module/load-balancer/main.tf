@@ -1,11 +1,11 @@
 resource "aws_lb" "this" {
-  name                             = var.lb_name
-  internal                         = var.private
-  load_balancer_type               = var.lb_type
-  enable_cross_zone_load_balancing = true
-  ip_address_type                  = var.enable_ipv6 == false ? "ipv4" : "dualstack"
-  security_groups                  = var.lb_type == "gateway" ? null : [var.lb_security_group_id]
-  subnets                          = (var.lb_type == "application" || var.lb_type == "gateway") ? toset(var.lb_subnet_ids) : null
+  name               = var.lb_name
+  internal           = var.private
+  load_balancer_type = var.lb_type
+  # enable_cross_zone_load_balancing = true
+  ip_address_type = var.enable_ipv6 == false ? "ipv4" : "dualstack"
+  security_groups = var.lb_type == "gateway" ? null : [var.lb_security_group_id]
+  subnets         = (var.lb_type == "application" || var.lb_type == "gateway") ? toset(var.lb_subnet_ids) : null
 
   access_logs {
     bucket  = var.lb_access_log_bucket_id

@@ -50,3 +50,16 @@ variable "kms_key_id" {
   description = "KMS Key ARN or ID used to encrypt EBS volumes"
   type        = string
 }
+
+variable "resource_tags" {
+  description = "Define VPC tags"
+  type        = map(string)
+  default     = {}
+}
+
+
+variable "tags" {
+  description = "Define VPC tags"
+  type        = map(string)
+  default     = {}
+}
