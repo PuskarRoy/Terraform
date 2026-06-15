@@ -16,7 +16,7 @@ resource "aws_autoscaling_group" "this" {
 
   launch_template {
     id      = var.launch_template_id
-    version = "$Latest"
+    version = var.template_version
   }
 
   instance_maintenance_policy {
@@ -26,7 +26,7 @@ resource "aws_autoscaling_group" "this" {
 
   instance_refresh {
     strategy = "Rolling"
-    triggers = ["launch_template"]
+   # triggers = ["launch_template"]
   }
 
 

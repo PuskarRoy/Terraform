@@ -12,12 +12,14 @@ resource "aws_launch_template" "this" {
   user_data              = var.user_data
 
   block_device_mappings {
-    device_name = "/dev/xvda"
+    device_name = "/dev/sda1"
 
     ebs {
       delete_on_termination = true
       encrypted             = true
       kms_key_id            = var.kms_key_id
+      volume_size = var.volume_size
+      
     }
   }
 

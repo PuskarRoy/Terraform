@@ -32,3 +32,8 @@ variable "target_group_arn" {
   description = "ARN of the ALB/NLB Target Group to attach to the Auto Scaling Group"
   type        = string
 }
+
+variable "template_version" {
+  description = "Version of Launch Template"
+  type = string
+}
