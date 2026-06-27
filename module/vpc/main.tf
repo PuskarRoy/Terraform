@@ -75,7 +75,7 @@ resource "aws_subnet" "public_subnets" {
   availability_zone = data.aws_availability_zones.this.names[count.index]
   ipv6_cidr_block   = var.enable_ipv6 == true ? cidrsubnet(aws_vpc.main-vpc.ipv6_cidr_block, 8, count.index + 1) : null
   tags = {
-    Name = "${replace(lower(var.project_name), " ", "-")}-Pub-${substr(data.aws_availability_zones.this.names[count.index], -2, -1)}"
+    Name = "${replace(lower(var.project_name), " ", "-")}-PUB-${substr(data.aws_availability_zones.this.names[count.index], -2, -1)}"
   }
 
 }
@@ -88,7 +88,7 @@ resource "aws_subnet" "private_subnets" {
   ipv6_cidr_block   = var.enable_ipv6 == true ? cidrsubnet(aws_vpc.main-vpc.ipv6_cidr_block, 8, (count.index + 1 + length(data.aws_availability_zones.this.names))) : null
   availability_zone = data.aws_availability_zones.this.names[count.index]
   tags = {
-    Name = "${replace(lower(var.project_name), " ", "-")}-Pvt-${substr(data.aws_availability_zones.this.names[count.index], -2, -1)}"
+    Name = "${replace(lower(var.project_name), " ", "-")}-PVT-${substr(data.aws_availability_zones.this.names[count.index], -2, -1)}"
   }
 
 }
@@ -151,7 +151,7 @@ resource "aws_instance" "this" {
     sudo service iptables save
 EOT
   subnet_id                   = aws_subnet.public_subnets[0].id
-  vpc_security_group_ids      = [aws_security_group.this.id]
+  vpc_security_group_ids      = [aws_security_group.this[0].id]
   root_block_device {
     delete_on_termination = false
     encrypted             = true
@@ -172,6 +172,7 @@ resource "aws_eip_association" "eip_assoc" {
 
 
 resource "aws_security_group" "this" {
+  count  = var.enable_nat == true && var.nat_type == "instance" ? 1 : 0
   name   = "${replace(lower(var.project_name), " ", "-")}-NAT-SG"
   vpc_id = aws_vpc.main-vpc.id
 

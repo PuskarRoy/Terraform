@@ -5,12 +5,12 @@ locals {
 }
 
 resource "aws_kms_key" "this" {
-  description = "${var.project_name} KMS Key"
+  description = "${var.project_name}-kms-key"
   tags        = var.tags
 }
 
 resource "aws_kms_alias" "this" {
-  name          = "alias/${local.kms-name}-KMS-Key"
+  name          = "alias/${local.kms-name}-kms-Key"
   target_key_id = aws_kms_key.this.id
 }
 

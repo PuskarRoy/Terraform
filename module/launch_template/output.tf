@@ -5,5 +5,5 @@ output "id" {
 
 output "version" {
   description = "version of launch template"
-  value = aws_launch_template.this.latest_version
+  value       = aws_launch_template.this.latest_version
 }

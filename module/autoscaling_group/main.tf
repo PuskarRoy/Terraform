@@ -26,7 +26,7 @@ resource "aws_autoscaling_group" "this" {
 
   instance_refresh {
     strategy = "Rolling"
-   # triggers = ["launch_template"]
+    # triggers = ["launch_template"]
   }
 
 
@@ -34,5 +34,5 @@ resource "aws_autoscaling_group" "this" {
 
 resource "aws_autoscaling_attachment" "example" {
   autoscaling_group_name = aws_autoscaling_group.this.id
-  lb_target_group_arn                    = var.target_group_arn
+  lb_target_group_arn    = var.target_group_arn
 }

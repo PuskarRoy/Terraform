@@ -18,8 +18,8 @@ resource "aws_launch_template" "this" {
       delete_on_termination = true
       encrypted             = true
       kms_key_id            = var.kms_key_id
-      volume_size = var.volume_size
-      
+      volume_size           = var.volume_size
+
     }
   }
 

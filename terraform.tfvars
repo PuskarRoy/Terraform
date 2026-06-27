@@ -1,2 +1,1 @@
-aws_region   = "ap-south-1"
-project_name = "Tree Tech"
+aws_region = "ap-south-1"

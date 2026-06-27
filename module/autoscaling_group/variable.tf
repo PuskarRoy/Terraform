@@ -35,5 +35,5 @@ variable "target_group_arn" {
 
 variable "template_version" {
   description = "Version of Launch Template"
-  type = string
+  type        = string
 }
