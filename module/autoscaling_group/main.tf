@@ -29,10 +29,21 @@ resource "aws_autoscaling_group" "this" {
     # triggers = ["launch_template"]
   }
 
+  dynamic "tag" {
+    for_each = var.asg_tags
+
+    content {
+      key                 = tag.value.key
+      value               = tag.value.value
+      propagate_at_launch = tag.value.propagate_at_launch
+    }
+  }
+
 
 }
 
 resource "aws_autoscaling_attachment" "example" {
+  count                  = var.target_group_arn != null ? 1 : 0
   autoscaling_group_name = aws_autoscaling_group.this.id
   lb_target_group_arn    = var.target_group_arn
 }

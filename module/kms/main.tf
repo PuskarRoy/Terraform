@@ -111,6 +111,20 @@ resource "aws_kms_key_policy" "this" {
             "kms:GrantIsForAWSResource" : true
           }
         }
+      },
+      {
+        "Sid" : "Allow ECS Service Principal",
+        "Effect" : "Allow",
+        "Principal" : {
+          "Service" : "fargate.amazonaws.com"
+        },
+        "Action" : [
+          "kms:GenerateDataKeyWithoutPlaintext",
+          "kms:CreateGrant",
+          "kms:Decrypt",
+          "kms:DescribeKey"
+        ],
+        "Resource" : "*"
       }
     ]
   })

@@ -31,9 +31,20 @@ variable "launch_template_id" {
 variable "target_group_arn" {
   description = "ARN of the ALB/NLB Target Group to attach to the Auto Scaling Group"
   type        = string
+  default     = null
 }
 
 variable "template_version" {
   description = "Version of Launch Template"
   type        = string
+}
+
+variable "asg_tags" {
+  description = "Tags for the Auto Scaling Group"
+  type = list(object({
+    key                 = string
+    value               = string
+    propagate_at_launch = bool
+  }))
+  default = []
 }

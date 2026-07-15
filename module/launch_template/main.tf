@@ -9,10 +9,10 @@ resource "aws_launch_template" "this" {
   key_name               = var.keypair_name
   vpc_security_group_ids = [var.security_group_id]
   update_default_version = var.update_default_version
-  user_data              = var.user_data
+  user_data              = base64encode(var.user_data)
 
   block_device_mappings {
-    device_name = "/dev/sda1"
+    device_name = "/dev/xvda"
 
     ebs {
       delete_on_termination = true
