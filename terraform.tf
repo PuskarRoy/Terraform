@@ -1,7 +1,7 @@
 terraform {
   required_version = "~> 1.15"
   backend "s3" {
-    bucket = "terraform-state-s3-bucket-388458311239"
+    bucket = "terraform-state-bucket-908957720785"
     key    = "state/terraform.tfstate"
     region = "ap-south-1"
   }

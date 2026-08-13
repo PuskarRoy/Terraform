@@ -22,7 +22,7 @@
 #   elastic_ip        = true
 
 #   tags = {
-#     Name                 = "Ubuntu-Control"
+#     Name = "Ubuntu-Control"
 #   }
 # }
 
@@ -39,8 +39,8 @@
 #   elastic_ip        = true
 
 #   tags = {
-#     Name                 = "ubuntu",
-#     Ansible-Automation   = "Yes"
+#     Name               = "ubuntu",
+#     Ansible-Automation = "Yes"
 #   }
 # }
 
@@ -57,8 +57,8 @@
 #   elastic_ip        = true
 
 #   tags = {
-#     Name                 = "amazon",
-#     Ansible-Automation   = "Yes"
+#     Name               = "amazon",
+#     Ansible-Automation = "Yes"
 #   }
 # }
 
@@ -74,11 +74,11 @@
 #   subnet_id         = module.my_project_vpc.public_subnets_ids[1]
 #   security_group_id = aws_security_group.this.id
 #   elastic_ip        = true
-#   user_data = file("./assets/user-data/redhat-ssm-agent.sh")
+#   user_data         = file("./assets/user-data/redhat-ssm-agent.sh")
 
 #   tags = {
-#     Name                 = "redhat",
-#     Ansible-Automation   = "Yes"
+#     Name               = "redhat",
+#     Ansible-Automation = "Yes"
 #   }
 # }
 
