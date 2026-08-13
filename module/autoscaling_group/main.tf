@@ -1,5 +1,5 @@
 resource "aws_autoscaling_group" "this" {
-  name = "${replace(lower(var.name), " ", "-")}-asg"
+  name = var.name
 
   min_size         = var.min_size
   max_size         = var.max_size

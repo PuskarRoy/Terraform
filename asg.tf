@@ -7,15 +7,14 @@
 
 # module "my-project-launch-template" {
 #   source               = "./module/launch_template"
-#   ami                  = "ami-0298e0c0441cb5c66"
-#   iam_instance_profile = "ecsInstanceRole"
-#   instance_type        = "t3.medium"
+#   ami                  = "ami-0379a323367b9e078"
+#   iam_instance_profile = "ec2-admin"
+#   instance_type        = "t3a.medium"
 #   keypair_name         = module.my-project-app-keypair.key_pair_name
 #   kms_key_id           = module.my-project-kms.arn
 #   security_group_id    = aws_security_group.my-project-app-sg.id
 #   template_name        = "My-Project-APP-Template"
 #   volume_size          = 30
-#   user_data            = file("./assets/user-data/ecs-userdata.sh")
 
 # }
 

@@ -1,18 +1,18 @@
 variable "availability_zone" {
-  type    = string
+  type = string
 }
 
 variable "ebs_size" {
-  type    = number
+  type = number
 }
 
 variable "kms_key_id" {
-  type    = string
+  type = string
 }
 
 variable "tags" {
-  type = map(string)
-  default     = {}
+  type    = map(string)
+  default = {}
 }
 
 variable "ebs_device_name" {
@@ -21,6 +21,6 @@ variable "ebs_device_name" {
 }
 
 variable "instance_id" {
-  type = string
+  type    = string
   default = null
 }

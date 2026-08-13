@@ -43,7 +43,7 @@ variable "update_default_version" {
 variable "user_data" {
   description = "user data"
   type        = string
-  default     = null
+  default     = ""
 }
 
 variable "kms_key_id" {
