@@ -1,4 +1,3 @@
----
 name: Terraform Github Action Workflow
 
 on:
@@ -11,66 +10,66 @@ permissions:
   id-token: write
   contents: read
 
+env:
+  AWS_REGION: ap-south-1
+  ROLE_ARN: arn:aws:iam::908957720785:role/terraform-oidc-role
+  TERRAFORM_VERSION: "1.15"
+
 jobs:
   plan:
     runs-on: ubuntu-latest
+
     steps:
       - name: Get code from Github Repository
         uses: actions/checkout@v6
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v6.1.0
-        with: 
-          aws-region: ap-south-1
-          role-to-assume: arn:aws:iam::908957720785:role/terraform-oidc-role
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ env.ROLE_ARN }}
+
+      - name: Verify AWS Identity
+        run: aws sts get-caller-identity
 
       - name: Installing Terraform
         uses: hashicorp/setup-terraform@v4
-        with: 
-          terraform_version: 1.15
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
 
       - name: Terraform Initialization
         run: terraform init -no-color
 
-      - name: Teraform Validation
-        run: terraform validate -no-color 
+      - name: Terraform Validation
+        run: terraform validate -no-color
 
       - name: Terraform Plan
-        run: terraform plan -no-color -out=main.tfplan
-
-      - name: Terraform Plan Upload
-        uses: actions/upload-artifact@v7
-        with:
-          name: tfplan
-          path: ./main.tfplan
+        run: terraform plan -no-color
 
   deploy:
     runs-on: ubuntu-latest
     needs: [plan]
+
     steps:
       - name: Get code from Github Repository
         uses: actions/checkout@v6
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v6.1.0
-        with: 
-          aws-region: ap-south-1
-          role-to-assume: arn:aws:iam::388458311239:role/github-action-role
-        
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ env.ROLE_ARN }}
+
+      - name: Verify AWS Identity
+        run: aws sts get-caller-identity
+
       - name: Installing Terraform
         uses: hashicorp/setup-terraform@v4
-        with: 
-          terraform_version: 1.15
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
 
       - name: Terraform Initialization
         run: terraform init -no-color
 
-      - name: Download Terraform Plan
-        uses: actions/download-artifact@v7
-        with:
-          name: tfplan
-          path: .
-
       - name: Terraform Apply
-        run: terraform apply -auto-approve -no-color main.tfplan
-       
+        run: terraform apply -auto-approve -no-color
