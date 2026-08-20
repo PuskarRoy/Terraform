@@ -1,6 +1,9 @@
 #!/bin/bash
+systemctl stop ecs
 
 cat > /etc/ecs/ecs.config << 'EOF'
 ECS_CLUSTER=testcluster
 EOF
-systemctl restart ecs
+
+systemctl enable ecs
+systemctl start ecs
